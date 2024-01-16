@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Demo: Add custom markers in Mapbox GL JS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link
+href="https://fonts.googleapis.com/css?family=Open+Sans"
+rel="stylesheet"
+/>
+<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<link
+href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css"
+rel="stylesheet"
+/>
+<link rel="stylesheet" href="style.css">
+<style>
+body {
+margin: 0;
+padding: 0;
+}
+ 
+#map {
+position: absolute;
+top: 0;
+bottom: 0;
+width: 100%;
+}
+ 
+.marker {
+background-image: url('picto bleu.png');
+background-size: cover;
+width: 90px;
+height: 90px;
+border-radius: 50%;
+
+cursor: pointer;
+}
+ 
+.mapboxgl-popup {
+max-width: 500px;
+
+margin-top: 35px;
+
+}
+ 
+.mapboxgl-popup-content {
+text-align: center;
+font-family: 'Open Sans', sans-serif;
+width: 700px;
+height: 370px;
+margin-top: -100px;
+
+}
+
+@media screen and (min-width:210px) and (max-width: 480px){
+    .mapboxgl-popup {
+        max-width: 500px;
+        
+        margin-top: -155px;
+        
+        }
+         
+        .mapboxgl-popup-content {
+        text-align: center;
+        font-family: 'Open Sans', sans-serif;
+        width: 290px;
+        height: 540px;
+        margin-top: -50px;
+        
+        }
+    
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ3ViaW5xIiwiYSI6ImNrbnlubnVwYjBsMjgyb3J4b3hqM2YwOGsifQ.KV-VZe4nIEMc7rhtHmM5BQ';
+    var map = new mapboxgl.Map({
+    container: 'map',
+    zoom: 14.6,
+    center: [2.223004, 44.556031],
+    pitch: 70,
+    bearing: 80,
+    style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y'
+    });
+     
+    map.on('load', function () {
+    map.addSource('mapbox-dem', {
+    'type': 'raster-dem',
+    'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+    'tileSize': 400,
+    'maxzoom': 14
+    });
+    // add the DEM source as a terrain layer with exaggerated height
+    map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+     
+    // add a sky layer that will show when the map is highly pitched
+    map.addLayer({
+    'id': 'sky',
+    'type': 'sky',
+    'paint': {
+    'sky-type': 'atmosphere',
+    'sky-atmosphere-sun': [0.0, 0.0],
+    'sky-atmosphere-sun-intensity': 25
+    }
+    });
+    });
+ 
+const geojson = {
+'type': 'FeatureCollection',
+'features': [
+{
+
+
+'type': 'Feature',
+'geometry': {
+'type': 'Point',
+'coordinates': [ 2.223004, 44.556031]
+},
+'properties': {
+'title': 'La montagne pelée',
+'description': "<img  src='Viviez-2.jpg 'width='200' ><h5>Dès 1826 le Duc Decazes assisté de l’ingénieur Cabrol, crée la « Compagnie des houillères et fonderies de l’Aveyron ». Elle regroupe alors les mines et usines de Decazeville et de Campagnac, toutes deux naissantes. En 1827, l’industrie voit le jour sur le site Lasalle. La ville de Decazeville naît par ordonnance royale en 1833. De la même façon, l’exploitation d’Aubin est fondée par le comte de Seraincourt, qui achète la concession minière de Cransac, Combes, et Lapatie déjà existantes. Plus tard, en 1871, s’installe à Viviez la société belge «Vieille Montagne» pour l’exploitation du Zinc. Très vite viennent se greffer plusieurs usines : grillages, acide sulfurique, supra phosphates, briqueteries, verreries…. En un siècle à peine, le site jadis infranchissable et isolé de tout, prend vie attirant une population étrangère de masse.</h5><a href='https://paysageaveyron.fr/lusine-cree-la-ville-decazeville/' color='white'><h4><img src='https://api.iconify.design/iwwa:info.svg' width='10'>&nbsp Plus d'informations: ICI</a></h4>"
+}
+}
+]
+};
+ 
+
+
+
+ 
+// add markers to map
+for (const feature of geojson.features) {
+// create a HTML element for each feature
+const el = document.createElement('div');
+el.className = 'marker';
+ 
+// make a marker for each feature and add it to the map
+new mapboxgl.Marker(el)
+.setLngLat(feature.geometry.coordinates)
+.setPopup(
+new mapboxgl.Popup({ offset: -9 }) // add popups
+.setHTML(
+`<h3>${feature.properties.title}</h3><p>${feature.properties.description}</p>`
+)
+)
+
+
+.addTo(map);
+}
+
+
+</script>
+</body>
+</html>
